@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casio fx-92MS Scientific Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: #2c3e50;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 -3px 0 rgba(0,0,0,0.3);
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .brand {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        .model {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .display-container {
+            background: #7f8c8d;
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .display {
+            background: #9eb58a;
+            min-height: 80px;
+            border-radius: 5px;
+            padding: 10px;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .display-top {
+            font-size: 11px;
+            color: #2c3e50;
+            min-height: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .display-main {
+            font-size: 28px;
+            color: #1a1a1a;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            padding: 12px 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+            position: relative;
+            text-align: center;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        button .main {
+            display: block;
+            font-size: 14px;
+        }
+
+        button .shift {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #f39c12;
+        }
+
+        /* Button colors */
+        .btn-function {
+            background: #34495e;
+            color: white;
+        }
+
+        .btn-number {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-operator {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-memory {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-shift {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-equals {
+            background: #27ae60;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-clear {
+            background: #e67e22;
+            color: white;
+        }
+
+        /* Special button styles */
+        .btn-0 {
+            grid-column: span 2;
+        }
+
+        /* Mode indicators */
+        .mode-indicators {
+            display: flex;
+            gap: 10px;
+            font-size: 10px;
+            color: #2c3e50;
+        }
+
+        .indicator {
+            padding: 2px 5px;
+            background: transparent;
+            border-radius: 3px;
+        }
+
+        .indicator.active {
+            background: #2c3e50;
+            color: #9eb58a;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 20px;
+            }
+
+            button {
+                padding: 10px 3px;
+                font-size: 12px;
+            }
+
+            .display-main {
+                font-size: 24px;
+            }
+
+            button .main {
+                font-size: 12px;
+            }
+
+            button .shift {
+                font-size: 8px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .calculator-container {
+                padding: 15px;
+            }
+
+            button {
+                padding: 8px 2px;
+            }
+
+            .display-main {
+                font-size: 20px;
+            }
+
+            .buttons {
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="brand">
+            <h1>CASIO</h1>
+            <div class="model">fx-92MS SCIENTIFIC CALCULATOR</div>
+        </div>
+
+        <div class="display-container">
+            <div class="display">
+                <div class="display-top">
+                    <div class="mode-indicators">
+                        <span class="indicator" id="shift-ind">S</span>
+                        <span class="indicator" id="deg-ind">DEG</span>
+                        <span class="indicator" id="fix-ind">FIX</span>
+                        <span class="indicator" id="sci-ind">SCI</span>
+                    </div>
+                    <div id="memory-display"></div>
+                </div>
+                <div class="display-main" id="display">0</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <!-- Row 1 -->
+            <button class="btn-shift" onclick="toggleShift()">
+                <span class="shift"></span>
+                <span class="main">SHIFT</span>
+            </button>
+            <button class="btn-function" onclick="toggleMode()">
+                <span class="shift">DRG</span>
+                <span class="main">MODE</span>
+            </button>
+            <button class="btn-clear" onclick="clearAll()">
+                <span class="shift">OFF</span>
+                <span class="main">ON/C</span>
+            </button>
+            <button class="btn-function" onclick="deleteLastChar()">
+                <span class="shift">INS</span>
+                <span class="main">DEL</span>
+            </button>
+            <button class="btn-clear" onclick="clearEntry()">
+                <span class="shift"></span>
+                <span class="main">AC</span>
+            </button>
+
+            <!-- Row 2 -->
+            <button class="btn-function" onclick="scientificFunction('x!')">
+                <span class="shift">nCr</span>
+                <span class="main">x!</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('nCr')">
+                <span class="shift">nPr</span>
+                <span class="main">nCr</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('pol')">
+                <span class="shift">REC</span>
+                <span class="main">POL</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('x³')">
+                <span class="shift">∛</span>
+                <span class="main">x³</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('abs')">
+                <span class="shift">A</span>
+                <span class="main">ABS</span>
+            </button>
+
+            <!-- Row 3 -->
+            <button class="btn-function" onclick="insertConstant('π')">
+                <span class="shift">e</span>
+                <span class="main">π</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('sin')">
+                <span class="shift">sin⁻¹</span>
+                <span class="main">sin</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('cos')">
+                <span class="shift">cos⁻¹</span>
+                <span class="main">cos</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('tan')">
+                <span class="shift">tan⁻¹</span>
+                <span class="main">tan</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('hyp')">
+                <span class="shift"></span>
+                <span class="main">HYP</span>
+            </button>
+
+            <!-- Row 4 -->
+            <button class="btn-memory" onclick="memoryFunction('RCL')">
+                <span class="shift">STO</span>
+                <span class="main">RCL</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('log')">
+                <span class="shift">10ˣ</span>
+                <span class="main">log</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('ln')">
+                <span class="shift">eˣ</span>
+                <span class="main">ln</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('x²')">
+                <span class="shift">√</span>
+                <span class="main">x²</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('xʸ')">
+                <span class="shift">ʸ√x</span>
+                <span class="main">xʸ</span>
+            </button>
+
+            <!-- Row 5 -->
+            <button class="btn-function" onclick="insertChar('(')">
+                <span class="shift">%</span>
+                <span class="main">(</span>
+            </button>
+            <button class="btn-function" onclick="insertChar(')')">
+                <span class="shift">,</span>
+                <span class="main">)</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('1/x')">
+                <span class="shift">x⁻¹</span>
+                <span class="main">1/x</span>
+            </button>
+            <button class="btn-memory" onclick="memoryFunction('M+')">
+                <span class="shift">M-</span>
+                <span class="main">M+</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('/')">
+                <span class="shift"></span>
+                <span class="main">÷</span>
+            </button>
+
+            <!-- Row 6 -->
+            <button class="btn-function" onclick="insertChar('alpha')">
+                <span class="shift">:</span>
+                <span class="main">ALPHA</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('7')">
+                <span class="shift">A</span>
+                <span class="main">7</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('8')">
+                <span class="shift">B</span>
+                <span class="main">8</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('9')">
+                <span class="shift">C</span>
+                <span class="main">9</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('*')">
+                <span class="shift"></span>
+                <span class="main">×</span>
+            </button>
+
+            <!-- Row 7 -->
+            <button class="btn-function" onclick="insertFunction('eng')">
+                <span class="shift">←</span>
+                <span class="main">ENG</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('4')">
+                <span class="shift">D</span>
+                <span class="main">4</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('5')">
+                <span class="shift">E</span>
+                <span class="main">5</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('6')">
+                <span class="shift">F</span>
+                <span class="main">6</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('-')">
+                <span class="shift"></span>
+                <span class="main">−</span>
+            </button>
+
+            <!-- Row 8 -->
+            <button class="btn-function" onclick="changeSign()">
+                <span class="shift">Ran#</span>
+                <span class="main">(−)</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('1')">
+                <span class="shift">S-SUM</span>
+                <span class="main">1</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('2')">
+                <span class="shift">S-VAR</span>
+                <span class="main">2</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('3')">
+                <span class="shift"></span>
+                <span class="main">3</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('+')">
+                <span class="shift"></span>
+                <span class="main">+</span>
+            </button>
+
+            <!-- Row 9 -->
+            <button class="btn-function" onclick="insertFunction('exp')">
+                <span class="shift">ANS</span>
+                <span class="main">EXP</span>
+            </button>
+            <button class="btn-number btn-0" onclick="insertNumber('0')">
+                <span class="shift">Rnd</span>
+                <span class="main">0</span>
+            </button>
+            <button class="btn-number" onclick="insertDecimal()">
+                <span class="shift">RAN#</span>
+                <span class="main">.</span>
+            </button>
+            <button class="btn-equals" onclick="calculate()">
+                <span class="shift"></span>
+                <span class="main">=</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let memoryDisplay = document.getElementById('memory-display');
+        let shiftIndicator = document.getElementById('shift-ind');
+        let degIndicator = document.getElementById('deg-ind');
+        
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let shouldResetDisplay = false;
+        let memory = 0;
+        let shiftMode = false;
+        let angleMode = 'DEG'; // DEG, RAD, GRAD
+        let lastAnswer = 0;
+
+        // Initialize
+        degIndicator.classList.add('active');
+
+        function updateDisplay() {
+            // Format number for display
+            let displayValue = currentInput;
+            
+            // Handle very large or very small numbers
+            if (Math.abs(parseFloat(displayValue)) > 9999999999) {
+                displayValue = parseFloat(displayValue).toExponential(5);
+            }
+            
+            // Limit display length
+            if (displayValue.length > 12) {
+                if (displayValue.includes('.')) {
+                    let parts = displayValue.split('.');
+                    let integerPart = parts[0];
+                    let decimalPart = parts[1];
+                    let maxDecimalLength = 11 - integerPart.length;
+                    if (maxDecimalLength > 0) {
+                        displayValue = integerPart + '.' + decimalPart.substring(0, maxDecimalLength);
+                    } else {
+                        displayValue = parseFloat(displayValue).toExponential(5);
+                    }
+                } else {
+                    displayValue = parseFloat(displayValue).toExponential(5);
+                }
+            }
+            
+            display.textContent = displayValue;
+            
+            // Update memory indicator
+            if (memory !== 0) {
+                memoryDisplay.textContent = 'M';
+            } else {
+                memoryDisplay.textContent = '';
+            }
+        }
+
+        function insertNumber(num) {
+            if (shouldResetDisplay || currentInput === '0') {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput.length < 12) {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        function insertDecimal() {
+            if (shouldResetDisplay) {
+                currentInput = '0.';
+                shouldResetDisplay = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        function insertOperator(op) {
+            if (operation && !shouldResetDisplay) {
+                calculate();
+            }
+            previousInput = currentInput;
+            operation = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (!operation || !previousInput) {
+                return;
+            }
+            
+            let prev = parseFloat(previousInput);
+            let current = parseFloat(currentInput);
+            let result = 0;
+            
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentInput = 'Error';
+                        updateDisplay();
+                        setTimeout(() => {
+                            clearAll();
+                        }, 1500);
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+            }
+            
+            lastAnswer = result;
+            currentInput = result.toString();
+            operation = null;
+            previousInput = '';
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function deleteLastChar() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function changeSign() {
+            let num = parseFloat(currentInput);
+            currentInput = (-num).toString();
+            updateDisplay();
+        }
+
+        function toggleShift() {
+            shiftMode = !shiftMode;
+            if (shiftMode) {
+                shiftIndicator.classList.add('active');
+            } else {
+                shiftIndicator.classList.remove('active');
+            }
+        }
+
+        function toggleMode() {
+            if (angleMode === 'DEG') {
+                angleMode = 'RAD';
+                degIndicator.classList.remove('active');
+                degIndicator.textContent = 'RAD';
+                degIndicator.classList.add('active');
+            } else if (angleMode === 'RAD') {
+                angleMode = 'GRAD';
+                degIndicator.textContent = 'GRAD';
+            } else {
+                angleMode = 'DEG';
+                degIndicator.textContent = 'DEG';
+            }
+        }
+
+        function toRadians(angle) {
+            if (angleMode === 'DEG') {
+                return angle * Math.PI / 180;
+            } else if (angleMode === 'GRAD') {
+                return angle * Math.PI / 200;
+            }
+            return angle;
+        }
+
+        function fromRadians(angle) {
+            if (angleMode === 'DEG') {
+                return angle * 180 / Math.PI;
+            } else if (angleMode === 'GRAD') {
+                return angle * 200 / Math.PI;
+            }
+            return angle;
+        }
+
+        function scientificFunction(func) {
+            let num = parseFloat(currentInput);
+            let result = 0;
+            
+            switch (func) {
+                case 'sin':
+                    if (shiftMode) {
+                        result = fromRadians(Math.asin(num));
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        result = Math.sin(toRadians(num));
+                    }
+                    break;
+                case 'cos':
+                    if (shiftMode) {
+                        result = fromRadians(Math.acos(num));
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        result = Math.cos(toRadians(num));
+                    }
+                    break;
+                case 'tan':
+                    if (shiftMode) {
+                        result = fromRadians(Math.atan(num));
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        result = Math.tan(toRadians(num));
+                    }
+                    break;
+                case 'x²':
+                    if (shiftMode) {
+                        result = Math.sqrt(num);
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        result = num * num;
+                    }
+                    break;
+                case 'x³':
+                    if (shiftMode) {
+                        result = Math.cbrt(num);
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        result = num * num * num;
+                    }
+                    break;
+                case '1/x':
+                    if (num === 0) {
+                        currentInput = 'Error';
+                        updateDisplay();
+                        setTimeout(() => {
+                            clearAll();
+                        }, 1500);
+                        return;
+                    }
+                    result = 1 / num;
+                    break;
+                case 'x!':
+                    if (num < 0 || num > 69 || num !== Math.floor(num)) {
+                        currentInput = 'Error';
+                        updateDisplay();
+                        setTimeout(() => {
+                            clearAll();
+                        }, 1500);
+                        return;
+                    }
+                    result = factorial(num);
+                    break;
+                default:
+                    result = num;
+            }
+            
+            currentInput = result.toString();
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function insertFunction(func) {
+            let num = parseFloat(currentInput);
+            let result = 0;
+            
+            switch (func) {
+                case 'log':
+                    if (shiftMode) {
+                        result = Math.pow(10, num);
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        if (num <= 0) {
+                            currentInput = 'Error';
+                            updateDisplay();
+                            setTimeout(() => {
+                                clearAll();
+                            }, 1500);
+                            return;
+                        }
+                        result = Math.log10(num);
+                    }
+                    break;
+                case 'ln':
+                    if (shiftMode) {
+                        result = Math.exp(num);
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        if (num <= 0) {
+                            currentInput = 'Error';
+                            updateDisplay();
+                            setTimeout(() => {
+                                clearAll();
+                            }, 1500);
+                            return;
+                        }
+                        result = Math.log(num);
+                    }
+                    break;
+                case 'abs':
+                    result = Math.abs(num);
+                    break;
+                case 'exp':
+                    if (shiftMode) {
+                        result = lastAnswer;
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        // EXP function for scientific notation input
+                        return;
+                    }
+                    break;
+                default:
+                    result = num;
+            }
+            
+            currentInput = result.toString();
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function insertConstant(constant) {
+            let result = 0;
+            
+            if (constant === 'π') {
+                if (shiftMode) {
+                    result = Math.E;
+                    shiftMode = false;
+                    shiftIndicator.classList.remove('active');
+                } else {
+                    result = Math.PI;
+                }
+            }
+            
+            currentInput = result.toString();
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function memoryFunction(func) {
+            let num = parseFloat(currentInput);
+            
+            switch (func) {
+                case 'M+':
+                    if (shiftMode) {
+                        memory -= num;
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        memory += num;
+                    }
+                    break;
+                case 'RCL':
+                    if (shiftMode) {
+                        memory = num;
+                        shiftMode = false;
+                        shiftIndicator.classList.remove('active');
+                    } else {
+                        currentInput = memory.toString();
+                        shouldResetDisplay = true;
+                    }
+                    break;
+            }
+            
+            updateDisplay();
+        }
+
+        function insertChar(char) {
+            if (char === '(' || char === ')') {
+                // Basic parentheses support
+                if (shouldResetDisplay) {
+                    currentInput = char;
+                    shouldResetDisplay = false;
+                } else {
+                    currentInput += char;
+                }
+                updateDisplay();
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                insertNumber(e.key);
+            } else if (e.key === '.') {
+                insertDecimal();
+            } else if (e.key === '+') {
+                insertOperator('+');
+            } else if (e.key === '-') {
+                insertOperator('-');
+            } else if (e.key === '*') {
+                insertOperator('*');
+            } else if (e.key === '/') {
+                e.preventDefault();
+                insertOperator('/');
+            } else if (e.key === 'Enter' || e.key === '=') {
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 'Backspace') {
+                deleteLastChar();
+            }
+        });
+    </script>
+</body>
+</html>
