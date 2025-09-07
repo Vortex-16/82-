@@ -608,514 +608,67 @@
             </button>
         </div>
     </div>
-    <script>
-        let display = document.getElementById('display');
-        let displayPanel = document.getElementById('display-panel');
-        let memoryDisplay = document.getElementById('memory-display');
-        let shiftIndicator = document.getElementById('shift-ind');
-        let alphaIndicator = document.getElementById('alpha-ind');
-        let degIndicator = document.getElementById('deg-ind');
-        let fixIndicator = document.getElementById('fix-ind');
-        let sciIndicator = document.getElementById('sci-ind');
-        
-        let currentInput = '0';
-        let previousInput = '';
-        let operation = null;
-        let shouldResetDisplay = false;
-        let memory = 0;
-        let shiftMode = false;
-        let alphaMode = false;
-        let angleMode = 'DEG';
-        let lastAnswer = 0;
-        let history = [];
-        let isOn = false;
+   <script>
+let expr = currentInput;
 
-        // Initialize calculator
-        function initCalculator() {
-            clearAll();
-            degIndicator.classList.add('active');
-            setTimeout(() => {
-                powerOn();
-            }, 300);
-        }
 
-        // Power on the calculator
-        function powerOn() {
-            if (!isOn) {
-                isOn = true;
-                displayPanel.style.animation = 'lcdFlicker 0.3s ease-in';
-                setTimeout(() => {
-                    clearAll();
-                }, 300);
-            } else {
-                // If already on, clear all
-                clearAll();
-            }
-        }
+// Replace functions with Math equivalents
+expr = expr.replace(/Ans/g, lastAnswer);
+expr = expr.replace(/π/g, Math.PI);
+expr = expr.replace(/e/g, Math.E);
 
-        // Toggle shift mode
-        function toggleShift() {
-            shiftMode = !shiftMode;
-            if (shiftMode) {
-                shiftIndicator.classList.add('active');
-            } else {
-                shiftIndicator.classList.remove('active');
-            }
-        }
 
-        // Toggle alpha mode
-        function toggleAlpha() {
-            alphaMode = !alphaMode;
-            if (alphaMode) {
-                alphaIndicator.classList.add('active');
-            } else {
-                alphaIndicator.classList.remove('active');
-            }
-        }
+expr = expr.replace(/√\(([^)]+)\)/g, (_, a) => `Math.sqrt(${a})`);
+expr = expr.replace(/(\d+)\!/g, (_, a) => factorial(parseInt(a)));
+expr = expr.replace(/sin\(([^)]+)\)/g, (_, a) => `Math.sin(toRadians(${a}))`);
+expr = expr.replace(/cos\(([^)]+)\)/g, (_, a) => `Math.cos(toRadians(${a}))`);
+expr = expr.replace(/tan\(([^)]+)\)/g, (_, a) => `Math.tan(toRadians(${a}))`);
+expr = expr.replace(/log\(([^)]+)\)/g, (_, a) => `Math.log10(${a})`);
+expr = expr.replace(/ln\(([^)]+)\)/g, (_, a) => `Math.log(${a})`);
+expr = expr.replace(/exp\(([^)]+)\)/g, (_, a) => `Math.exp(${a})`);
+expr = expr.replace(/([0-9.]+)\^([0-9.]+)/g, (_, a, b) => `Math.pow(${a},${b})`);
 
-        // Toggle mode (placeholder)
-        function toggleMode() {
-            // This would cycle through different modes in a real calculator
-            playSound('mode');
-        }
 
-        // Replay function (placeholder)
-        function replay() {
-            // This would navigate through calculation history
-            playSound('special');
-        }
+let result = eval(expr);
+if (!isFinite(result)) throw Error;
 
-        // Insert a number
-        function insertNumber(num) {
-            if (!isOn) powerOn();
-            
-            if (shouldResetDisplay || currentInput === '0' || currentInput === 'Math ERROR') {
-                currentInput = num;
-                shouldResetDisplay = false;
-            } else {
-                if (currentInput.length < 12) {
-                    currentInput += num;
-                }
-            }
-            updateDisplay();
-        }
 
-        // Insert decimal point
-        function insertDecimal() {
-            if (!isOn) powerOn();
-            
-            if (shouldResetDisplay || currentInput === 'Math ERROR') {
-                currentInput = '0.';
-                shouldResetDisplay = false;
-            } else if (!currentInput.includes('.')) {
-                currentInput += '.';
-            }
-            updateDisplay();
-        }
+lastAnswer = result;
+currentInput = result.toString();
+updateDisplay();
+} catch (e) {
+display.textContent = 'Math ERROR';
+currentInput = '';
+}
+}
 
-        // Insert operator
-        function insertOperator(op) {
-            if (!isOn) powerOn();
-            
-            if (operation && !shouldResetDisplay) {
-                calculate();
-            }
-            previousInput = currentInput;
-            operation = op;
-            shouldResetDisplay = true;
-        }
 
-        // Calculate result
-        function calculate() {
-            if (!operation || !previousInput) {
-                return;
-            }
-            
-            displayPanel.classList.add('calculating');
-            
-            setTimeout(() => {
-                let prev = parseFloat(previousInput);
-                let current = parseFloat(currentInput);
-                let result = 0;
-                
-                switch (operation) {
-                    case '+':
-                        result = prev + current;
-                        break;
-                    case '-':
-                        result = prev - current;
-                        break;
-                    case '*':
-                        result = prev * current;
-                        break;
-                    case '/':
-                        if (current === 0) {
-                            currentInput = 'Math ERROR';
-                            updateDisplay();
-                            setTimeout(() => {
-                                clearAll();
-                            }, 2000);
-                            displayPanel.classList.remove('calculating');
-                            return;
-                        }
-                        result = prev / current;
-                        break;
-                    case '^':
-                        result = Math.pow(prev, current);
-                        break;
-                }
-                
-                lastAnswer = result;
-                history.push(`${prev} ${operation} ${current} = ${result}`);
-                
-                // Format result to fit display
-                if (Math.abs(result) > 9999999999 || (Math.abs(result) < 0.000000001 && result !== 0)) {
-                    currentInput = result.toExponential(6);
-                } else {
-                    currentInput = parseFloat(result.toPrecision(10)).toString();
-                    // Remove trailing . if needed
-                    if (currentInput.includes('.') && currentInput.endsWith('0')) {
-                        currentInput = currentInput.replace(/0+$/, '');
-                        if (currentInput.endsWith('.')) {
-                            currentInput = currentInput.slice(0, -1);
-                        }
-                    }
-                }
-                
-                operation = null;
-                previousInput = '';
-                shouldResetDisplay = true;
-                updateDisplay();
-                displayPanel.classList.remove('calculating');
-            }, 300);
-        }
+// Memory functions
+function memoryAdd() {
+memory += parseFloat(currentInput || 0);
+updateDisplay();
+}
 
-        // Clear entry
-        function clearEntry() {
-            currentInput = '0';
-            updateDisplay();
-        }
 
-        // Clear all
-        function clearAll() {
-            currentInput = '0';
-            previousInput = '';
-            operation = null;
-            shouldResetDisplay = false;
-            updateDisplay();
-        }
+function memorySubtract() {
+memory -= parseFloat(currentInput || 0);
+updateDisplay();
+}
 
-        // Delete last character
-        function deleteLastChar() {
-            if (currentInput.length > 1 && currentInput !== 'Math ERROR') {
-                currentInput = currentInput.slice(0, -1);
-            } else {
-                currentInput = '0';
-            }
-            updateDisplay();
-        }
 
-        // Insert a character (for functions like (-))
-        function insertChar(char) {
-            if (!isOn) powerOn();
-            
-            if (shouldResetDisplay || currentInput === '0' || currentInput === 'Math ERROR') {
-                currentInput = char;
-                shouldResetDisplay = false;
-            } else {
-                if (currentInput.length < 12) {
-                    currentInput += char;
-                }
-            }
-            updateDisplay();
-        }
+function memoryRecall() {
+currentInput += memory;
+updateDisplay();
+}
 
-        // Insert a function
-        function insertFunction(func) {
-            if (!isOn) powerOn();
-            
-            switch (func) {
-                case 'ab/c':
-                    // Fraction input - not fully implemented in this simulation
-                    currentInput += 'ᵃᵇ⁄c';
-                    break;
-                case '√':
-                    currentInput = Math.sqrt(parseFloat(currentInput)).toString();
-                    break;
-                case 'log':
-                    if (parseFloat(currentInput) <= 0) {
-                        showError("Math ERROR");
-                        return;
-                    }
-                    currentInput = Math.log10(parseFloat(currentInput)).toString();
-                    break;
-                case 'ln':
-                    if (parseFloat(currentInput) <= 0) {
-                        showError("Math ERROR");
-                        return;
-                    }
-                    currentInput = Math.log(parseFloat(currentInput)).toString();
-                    break;
-                case 'EXP':
-                    currentInput += 'E';
-                    break;
-            }
-            shouldResetDisplay = true;
-            updateDisplay();
-        }
 
-        // Scientific functions
-        function scientificFunction(func) {
-            if (!isOn) powerOn();
-            
-            let value = parseFloat(currentInput);
-            
-            switch (func) {
-                case 'x⁻¹':
-                    if (value === 0) {
-                        showError("Math ERROR");
-                        return;
-                    }
-                    currentInput = (1 / value).toString();
-                    break;
-                case 'nCr':
-                    // Combination function - not fully implemented
-                    currentInput += 'C';
-                    break;
-                case 'pol':
-                    // Polar conversion - not fully implemented
-                    currentInput += 'Pol(';
-                    break;
-                case 'x³':
-                    currentInput = Math.pow(value, 3).toString();
-                    break;
-                case 'x²':
-                    currentInput = Math.pow(value, 2).toString();
-                    break;
-                case '^':
-                    operation = '^';
-                    previousInput = currentInput;
-                    shouldResetDisplay = true;
-                    break;
-                case 'hyp':
-                    // Hyperbolic function - not fully implemented
-                    currentInput += 'hyp';
-                    break;
-                case 'sin':
-                    let angle = value;
-                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
-                    currentInput = Math.sin(angle).toString();
-                    break;
-                case 'cos':
-                    angle = value;
-                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
-                    currentInput = Math.cos(angle).toString();
-                    break;
-                case 'tan':
-                    angle = value;
-                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
-                    // Check for undefined values
-                    if (Math.cos(angle) === 0) {
-                        showError("Math ERROR");
-                        return;
-                    }
-                    currentInput = Math.tan(angle).toString();
-                    break;
-            }
-            shouldResetDisplay = true;
-            updateDisplay();
-        }
+function memoryClear() {
+memory = 0;
+updateDisplay();
+}
 
-        // Memory functions
-        function memoryFunction(func) {
-            if (!isOn) powerOn();
-            
-            switch (func) {
-                case 'RCL':
-                    if (shiftMode) {
-                        // STO function
-                        memory = parseFloat(currentInput);
-                    } else {
-                        // RCL function
-                        currentInput = memory.toString();
-                    }
-                    break;
-                case 'M+':
-                    if (shiftMode) {
-                        // M- function
-                        memory -= parseFloat(currentInput);
-                    } else {
-                        // M+ function
-                        memory += parseFloat(currentInput);
-                    }
-                    break;
-            }
-            updateDisplay();
-        }
 
-        // Get answer from previous calculation
-        function getAnswer() {
-            if (!isOn) powerOn();
-            
-            currentInput = lastAnswer.toString();
-            updateDisplay();
-        }
-
-        // Show error message
-        function showError(message) {
-            currentInput = message;
-            updateDisplay();
-            setTimeout(() => {
-                clearAll();
-            }, 2000);
-        }
-
-        // Update the display
-        function updateDisplay() {
-            let displayValue = currentInput;
-            
-            // Handle very large or very small numbers
-            if (!isNaN(parseFloat(displayValue)) {
-                const numValue = parseFloat(displayValue);
-                if (Math.abs(numValue) > 9999999999 || (Math.abs(numValue) < 0.000000001 && numValue !== 0)) {
-                    displayValue = numValue.toExponential(6);
-                }
-            }
-            
-            // Limit display length
-            if (displayValue.length > 12) {
-                if (displayValue.includes('.')) {
-                    let parts = displayValue.split('.');
-                    let integerPart = parts[0];
-                    let decimalPart = parts[1];
-                    let maxDecimalLength = 11 - integerPart.length;
-                    if (maxDecimalLength > 0) {
-                        displayValue = integerPart + '.' + decimalPart.substring(0, maxDecimalLength);
-                    } else {
-                        displayValue = parseFloat(displayValue).toExponential(5);
-                    }
-                } else {
-                    displayValue = parseFloat(displayValue).toExponential(5);
-                }
-            }
-            
-            // Animate number change
-            display.style.opacity = '0.7';
-            setTimeout(() => {
-                display.textContent = displayValue;
-                display.style.opacity = '1';
-            }, 50);
-            
-            // Update memory indicator
-            if (memory !== 0) {
-                memoryDisplay.textContent = 'M';
-                memoryDisplay.style.animation = 'indicatorPulse 0.5s';
-                setTimeout(() => {
-                    memoryDisplay.style.animation = '';
-                }, 500);
-            } else {
-                memoryDisplay.textContent = '';
-            }
-        }
-
-        // Touch animation function
-        function createRipple(e, button) {
-            button.classList.add('ripple');
-            
-            // Create visual ripple effect
-            const ripple = document.createElement('span');
-            ripple.classList.add('touch-ripple');
-            
-            const rect = button.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            
-            button.appendChild(ripple);
-            
-            // Haptic feedback simulation with visual cue
-            if (navigator.vibrate) {
-                navigator.vibrate(10);
-            }
-            
-            setTimeout(() => {
-                button.classList.remove('ripple');
-                ripple.remove();
-            }, 600);
-        }
-
-        // Sound effects (using Web Audio API)
-        function playSound(type) {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            switch(type) {
-                case 'number':
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'operator':
-                    oscillator.frequency.value = 600;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'func':
-                    oscillator.frequency.value = 700;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'equals':
-                    oscillator.frequency.value = 1000;
-                    gainNode.gain.value = 0.15;
-                    break;
-                case 'clear':
-                    oscillator.frequency.value = 400;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'memory':
-                    oscillator.frequency.value = 900;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'mode':
-                    oscillator.frequency.value = 1200;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'special':
-                    oscillator.frequency.value = 1500;
-                    gainNode.gain.value = 0.1;
-                    break;
-                case 'power':
-                    oscillator.frequency.value = 500;
-                    gainNode.gain.value = 0.1;
-                    break;
-                default:
-                    oscillator.frequency.value = 500;
-                    gainNode.gain.value = 0.05;
-            }
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.05);
-        }
-
-        // Add touch animation to all buttons
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                createRipple(e, this);
-                
-                // Sound feedback based on button type
-                const soundType = this.getAttribute('data-sound');
-                playSound(soundType);
-            });
-        });
-
-        // Initialize the calculator when page loads
-        window.addEventListener('load', initCalculator);
-    </script>
+updateDisplay();
+</script>
 </body>
 </html>
