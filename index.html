@@ -5,14 +5,609 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casio fx-82MS Scientific Calculator</title>
     <style>
-        /* Your CSS (same as you provided above) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        .calculator-container {
+            background: linear-gradient(180deg, #3a4556 0%, #2c3440 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.4),
+                0 10px 20px rgba(0,0,0,0.3),
+                inset 0 2px 4px rgba(255,255,255,0.1),
+                inset 0 -2px 4px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 100%;
+            transform-style: preserve-3d;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px) rotateX(-5deg);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) rotateX(0);
+                opacity: 1;
+            }
+        }
+
+        .brand {
+            color: #e8e8e8;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .brand h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            background: linear-gradient(180deg, #ffffff, #c0c0c0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .model {
+            font-size: 11px;
+            color: #a0a8b0;
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+
+        .solar-panel {
+            background: linear-gradient(90deg, #1a1a1a 0%, #2a2a2a 25%, #1a1a1a 50%, #2a2a2a 75%, #1a1a1a 100%);
+            height: 25px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solar-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: solarShine 8s infinite;
+        }
+
+        @keyframes solarShine {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        .display-container {
+            background: #4a5a3a;
+            padding: 4px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 
+                inset 0 3px 8px rgba(0,0,0,0.4),
+                0 1px 2px rgba(255,255,255,0.1);
+        }
+
+        .display {
+            background: linear-gradient(180deg, #7b8c6a 0%, #8a9b7a 100%);
+            min-height: 70px;
+            border-radius: 4px;
+            padding: 8px;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+            animation: lcdFlicker 0.3s ease-in;
+        }
+
+        @keyframes lcdFlicker {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.9; }
+            100% { opacity: 1; }
+        }
+
+        .display-top {
+            font-size: 10px;
+            color: #2a3520;
+            min-height: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .display-main {
+            font-size: 26px;
+            color: #1a2010;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 7px;
+        }
+
+        button {
+            padding: 10px 4px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 3px 6px rgba(0,0,0,0.3),
+                0 1px 2px rgba(0,0,0,0.2),
+                inset 0 1px 1px rgba(255,255,255,0.2);
+            position: relative;
+            text-align: center;
+            transform: translateZ(20px);
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button.ripple::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 
+                0 1px 2px rgba(0,0,0,0.3),
+                inset 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 
+                0 5px 10px rgba(0,0,0,0.4),
+                0 2px 4px rgba(0,0,0,0.2),
+                inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+
+        button .main {
+            display: block;
+            font-size: 13px;
+            position: relative;
+            z-index: 2;
+        }
+
+        button .shift {
+            position: absolute;
+            top: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            color: #ffa500;
+            z-index: 2;
+        }
+
+        /* Button colors - fx-82MS specific */
+        .btn-function {
+            background: linear-gradient(180deg, #4a5468 0%, #3a4458 100%);
+            color: white;
+        }
+
+        .btn-number {
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            color: #2c3440;
+        }
+
+        .btn-operator {
+            background: linear-gradient(180deg, #5a7aa8 0%, #4a6a98 100%);
+            color: white;
+        }
+
+        .btn-memory {
+            background: linear-gradient(180deg, #d84a4a 0%, #c83a3a 100%);
+            color: white;
+        }
+
+        .btn-shift {
+            background: linear-gradient(180deg, #ffa500 0%, #ff8c00 100%);
+            color: white;
+        }
+
+        .btn-equals {
+            background: linear-gradient(180deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(180deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+
+        .btn-mode {
+            background: linear-gradient(180deg, #9c27b0 0%, #7b1fa2 100%);
+            color: white;
+        }
+
+        /* Mode indicators */
+        .mode-indicators {
+            display: flex;
+            gap: 8px;
+            font-size: 9px;
+            color: #3a4530;
+        }
+
+        .indicator {
+            padding: 1px 4px;
+            background: transparent;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: #2a3520;
+            color: #b0c090;
+            animation: indicatorPulse 0.5s;
+        }
+
+        @keyframes indicatorPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Touch animation */
+        @keyframes touchRipple {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .touch-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.6);
+            pointer-events: none;
+            animation: touchRipple 0.6s ease-out;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 15px;
+            }
+
+            button {
+                padding: 8px 3px;
+                font-size: 11px;
+            }
+
+            .display-main {
+                font-size: 22px;
+            }
+
+            button .main {
+                font-size: 11px;
+            }
+
+            button .shift {
+                font-size: 7px;
+            }
+
+            .buttons {
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .calculator-container {
+                padding: 12px;
+            }
+
+            button {
+                padding: 7px 2px;
+            }
+
+            .display-main {
+                font-size: 20px;
+            }
+
+            .buttons {
+                gap: 4px;
+            }
+        }
+
+        /* Loading animation */
+        .display.calculating::after {
+            content: '...';
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            animation: dots 1s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
     </style>
 </head>
 <body>
     <div class="calculator-container">
-        <!-- Calculator UI code (same as you provided above) -->
-    </div>
+        <div class="brand">
+            <h1>CASIO</h1>
+            <div class="model">fx-82MS SCIENTIFIC CALCULATOR</div>
+        </div>
 
+        <div class="solar-panel"></div>
+
+        <div class="display-container">
+            <div class="display" id="display-panel">
+                <div class="display-top">
+                    <div class="mode-indicators">
+                        <span class="indicator" id="shift-ind">S</span>
+                        <span class="indicator" id="alpha-ind">A</span>
+                        <span class="indicator" id="deg-ind">DEG</span>
+                        <span class="indicator" id="fix-ind">FIX</span>
+                        <span class="indicator" id="sci-ind">SCI</span>
+                    </div>
+                    <div id="memory-display"></div>
+                </div>
+                <div class="display-main" id="display">0</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <!-- Row 1 -->
+            <button class="btn-shift" onclick="toggleShift()" data-sound="shift">
+                <span class="shift"></span>
+                <span class="main">SHIFT</span>
+            </button>
+            <button class="btn-function" onclick="toggleAlpha()" data-sound="alpha">
+                <span class="shift">A-LOCK</span>
+                <span class="main">ALPHA</span>
+            </button>
+            <button class="btn-function" onclick="replay()" data-sound="special">
+                <span class="shift">▲</span>
+                <span class="main">REPLAY</span>
+            </button>
+            <button class="btn-mode" onclick="toggleMode()" data-sound="mode">
+                <span class="shift">CLR</span>
+                <span class="main">MODE</span>
+            </button>
+            <button class="btn-clear" onclick="powerOn()" data-sound="power">
+                <span class="shift">OFF</span>
+                <span class="main">ON</span>
+            </button>
+
+            <!-- Row 2 -->
+            <button class="btn-function" onclick="scientificFunction('x⁻¹')" data-sound="func">
+                <span class="shift">x!</span>
+                <span class="main">x⁻¹</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('nCr')" data-sound="func">
+                <span class="shift">nPr</span>
+                <span class="main">nCr</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('pol')" data-sound="func">
+                <span class="shift">Rec(</span>
+                <span class="main">Pol(</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('x³')" data-sound="func">
+                <span class="shift">∛</span>
+                <span class="main">x³</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('ab/c')" data-sound="func">
+                <span class="shift">d/c</span>
+                <span class="main">a b/c</span>
+            </button>
+
+            <!-- Row 3 -->
+            <button class="btn-function" onclick="insertFunction('√')" data-sound="func">
+                <span class="shift">³√</span>
+                <span class="main">√</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('x²')" data-sound="func">
+                <span class="shift"></span>
+                <span class="main">x²</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('^')" data-sound="func">
+                <span class="shift">ˣ√</span>
+                <span class="main">^</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('log')" data-sound="func">
+                <span class="shift">10ˣ</span>
+                <span class="main">log</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('ln')" data-sound="func">
+                <span class="shift">eˣ</span>
+                <span class="main">ln</span>
+            </button>
+
+            <!-- Row 4 -->
+            <button class="btn-function" onclick="insertChar('(-)')" data-sound="func">
+                <span class="shift">A</span>
+                <span class="main">(-)</span>
+            </button>
+            <button class="btn-function" onclick="insertChar('°\'\'')" data-sound="func">
+                <span class="shift">B</span>
+                <span class="main">°′″</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('hyp')" data-sound="func">
+                <span class="shift">C</span>
+                <span class="main">hyp</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('sin')" data-sound="func">
+                <span class="shift">sin⁻¹</span>
+                <span class="main">sin</span>
+            </button>
+            <button class="btn-function" onclick="scientificFunction('cos')" data-sound="func">
+                <span class="shift">cos⁻¹</span>
+                <span class="main">cos</span>
+            </button>
+
+            <!-- Row 5 -->
+            <button class="btn-function" onclick="scientificFunction('tan')" data-sound="func">
+                <span class="shift">tan⁻¹</span>
+                <span class="main">tan</span>
+            </button>
+            <button class="btn-memory" onclick="memoryFunction('RCL')" data-sound="memory">
+                <span class="shift">STO</span>
+                <span class="main">RCL</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('ENG')" data-sound="func">
+                <span class="shift">←</span>
+                <span class="main">ENG</span>
+            </button>
+            <button class="btn-function" onclick="insertChar('(')" data-sound="func">
+                <span class="shift">%</span>
+                <span class="main">(</span>
+            </button>
+            <button class="btn-function" onclick="insertChar(')')" data-sound="func">
+                <span class="shift">,</span>
+                <span class="main">)</span>
+            </button>
+
+            <!-- Row 6 -->
+            <button class="btn-function" onclick="insertChar(',')" data-sound="func">
+                <span class="shift">;</span>
+                <span class="main">,</span>
+            </button>
+            <button class="btn-memory" onclick="memoryFunction('M+')" data-sound="memory">
+                <span class="shift">M-</span>
+                <span class="main">M+</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('7')" data-sound="number">
+                <span class="shift">CONST</span>
+                <span class="main">7</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('8')" data-sound="number">
+                <span class="shift">CLR</span>
+                <span class="main">8</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('9')" data-sound="number">
+                <span class="shift">DEL</span>
+                <span class="main">9</span>
+            </button>
+
+            <!-- Row 7 -->
+            <button class="btn-clear" onclick="deleteLastChar()" data-sound="delete">
+                <span class="shift">INS</span>
+                <span class="main">DEL</span>
+            </button>
+            <button class="btn-clear" onclick="clearAll()" data-sound="clear">
+                <span class="shift"></span>
+                <span class="main">AC</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('4')" data-sound="number">
+                <span class="shift">STAT</span>
+                <span class="main">4</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('5')" data-sound="number">
+                <span class="shift">CMPLX</span>
+                <span class="main">5</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('6')" data-sound="number">
+                <span class="shift">BASE</span>
+                <span class="main">6</span>
+            </button>
+
+            <!-- Row 8 -->
+            <button class="btn-operator" onclick="insertOperator('*')" data-sound="operator">
+                <span class="shift"></span>
+                <span class="main">×</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('/')" data-sound="operator">
+                <span class="shift"></span>
+                <span class="main">÷</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('1')" data-sound="number">
+                <span class="shift">S-SUM</span>
+                <span class="main">1</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('2')" data-sound="number">
+                <span class="shift">S-VAR</span>
+                <span class="main">2</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('3')" data-sound="number">
+                <span class="shift">SOLVE</span>
+                <span class="main">3</span>
+            </button>
+
+            <!-- Row 9 -->
+            <button class="btn-operator" onclick="insertOperator('+')" data-sound="operator">
+                <span class="shift"></span>
+                <span class="main">+</span>
+            </button>
+            <button class="btn-operator" onclick="insertOperator('-')" data-sound="operator">
+                <span class="shift"></span>
+                <span class="main">−</span>
+            </button>
+            <button class="btn-number" onclick="insertNumber('0')" data-sound="number">
+                <span class="shift">Rnd</span>
+                <span class="main">0</span>
+            </button>
+            <button class="btn-number" onclick="insertDecimal()" data-sound="number">
+                <span class="shift">Ran#</span>
+                <span class="main">.</span>
+            </button>
+            <button class="btn-function" onclick="insertFunction('EXP')" data-sound="func">
+                <span class="shift">π</span>
+                <span class="main">EXP</span>
+            </button>
+
+            <!-- Row 10 (Bottom) -->
+            <button class="btn-function" onclick="getAnswer()" data-sound="func">
+                <span class="shift">DRG▶</span>
+                <span class="main">Ans</span>
+            </button>
+            <button class="btn-equals" onclick="calculate()" data-sound="equals" style="grid-column: span 4;">
+                <span class="shift"></span>
+                <span class="main">=</span>
+            </button>
+        </div>
+    </div>
     <script>
         let display = document.getElementById('display');
         let displayPanel = document.getElementById('display-panel');
@@ -20,6 +615,8 @@
         let shiftIndicator = document.getElementById('shift-ind');
         let alphaIndicator = document.getElementById('alpha-ind');
         let degIndicator = document.getElementById('deg-ind');
+        let fixIndicator = document.getElementById('fix-ind');
+        let sciIndicator = document.getElementById('sci-ind');
         
         let currentInput = '0';
         let previousInput = '';
@@ -31,13 +628,83 @@
         let angleMode = 'DEG';
         let lastAnswer = 0;
         let history = [];
+        let isOn = false;
 
-        // Initialize
-        degIndicator.classList.add('active');
+        // Initialize calculator
+        function initCalculator() {
+            clearAll();
+            degIndicator.classList.add('active');
+            setTimeout(() => {
+                powerOn();
+            }, 300);
+        }
 
-        // Insert decimal
+        // Power on the calculator
+        function powerOn() {
+            if (!isOn) {
+                isOn = true;
+                displayPanel.style.animation = 'lcdFlicker 0.3s ease-in';
+                setTimeout(() => {
+                    clearAll();
+                }, 300);
+            } else {
+                // If already on, clear all
+                clearAll();
+            }
+        }
+
+        // Toggle shift mode
+        function toggleShift() {
+            shiftMode = !shiftMode;
+            if (shiftMode) {
+                shiftIndicator.classList.add('active');
+            } else {
+                shiftIndicator.classList.remove('active');
+            }
+        }
+
+        // Toggle alpha mode
+        function toggleAlpha() {
+            alphaMode = !alphaMode;
+            if (alphaMode) {
+                alphaIndicator.classList.add('active');
+            } else {
+                alphaIndicator.classList.remove('active');
+            }
+        }
+
+        // Toggle mode (placeholder)
+        function toggleMode() {
+            // This would cycle through different modes in a real calculator
+            playSound('mode');
+        }
+
+        // Replay function (placeholder)
+        function replay() {
+            // This would navigate through calculation history
+            playSound('special');
+        }
+
+        // Insert a number
+        function insertNumber(num) {
+            if (!isOn) powerOn();
+            
+            if (shouldResetDisplay || currentInput === '0' || currentInput === 'Math ERROR') {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput.length < 12) {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        // Insert decimal point
         function insertDecimal() {
-            if (shouldResetDisplay) {
+            if (!isOn) powerOn();
+            
+            if (shouldResetDisplay || currentInput === 'Math ERROR') {
                 currentInput = '0.';
                 shouldResetDisplay = false;
             } else if (!currentInput.includes('.')) {
@@ -46,14 +713,276 @@
             updateDisplay();
         }
 
-        // Update display
+        // Insert operator
+        function insertOperator(op) {
+            if (!isOn) powerOn();
+            
+            if (operation && !shouldResetDisplay) {
+                calculate();
+            }
+            previousInput = currentInput;
+            operation = op;
+            shouldResetDisplay = true;
+        }
+
+        // Calculate result
+        function calculate() {
+            if (!operation || !previousInput) {
+                return;
+            }
+            
+            displayPanel.classList.add('calculating');
+            
+            setTimeout(() => {
+                let prev = parseFloat(previousInput);
+                let current = parseFloat(currentInput);
+                let result = 0;
+                
+                switch (operation) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            currentInput = 'Math ERROR';
+                            updateDisplay();
+                            setTimeout(() => {
+                                clearAll();
+                            }, 2000);
+                            displayPanel.classList.remove('calculating');
+                            return;
+                        }
+                        result = prev / current;
+                        break;
+                    case '^':
+                        result = Math.pow(prev, current);
+                        break;
+                }
+                
+                lastAnswer = result;
+                history.push(`${prev} ${operation} ${current} = ${result}`);
+                
+                // Format result to fit display
+                if (Math.abs(result) > 9999999999 || (Math.abs(result) < 0.000000001 && result !== 0)) {
+                    currentInput = result.toExponential(6);
+                } else {
+                    currentInput = parseFloat(result.toPrecision(10)).toString();
+                    // Remove trailing . if needed
+                    if (currentInput.includes('.') && currentInput.endsWith('0')) {
+                        currentInput = currentInput.replace(/0+$/, '');
+                        if (currentInput.endsWith('.')) {
+                            currentInput = currentInput.slice(0, -1);
+                        }
+                    }
+                }
+                
+                operation = null;
+                previousInput = '';
+                shouldResetDisplay = true;
+                updateDisplay();
+                displayPanel.classList.remove('calculating');
+            }, 300);
+        }
+
+        // Clear entry
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        // Clear all
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        // Delete last character
+        function deleteLastChar() {
+            if (currentInput.length > 1 && currentInput !== 'Math ERROR') {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Insert a character (for functions like (-))
+        function insertChar(char) {
+            if (!isOn) powerOn();
+            
+            if (shouldResetDisplay || currentInput === '0' || currentInput === 'Math ERROR') {
+                currentInput = char;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput.length < 12) {
+                    currentInput += char;
+                }
+            }
+            updateDisplay();
+        }
+
+        // Insert a function
+        function insertFunction(func) {
+            if (!isOn) powerOn();
+            
+            switch (func) {
+                case 'ab/c':
+                    // Fraction input - not fully implemented in this simulation
+                    currentInput += 'ᵃᵇ⁄c';
+                    break;
+                case '√':
+                    currentInput = Math.sqrt(parseFloat(currentInput)).toString();
+                    break;
+                case 'log':
+                    if (parseFloat(currentInput) <= 0) {
+                        showError("Math ERROR");
+                        return;
+                    }
+                    currentInput = Math.log10(parseFloat(currentInput)).toString();
+                    break;
+                case 'ln':
+                    if (parseFloat(currentInput) <= 0) {
+                        showError("Math ERROR");
+                        return;
+                    }
+                    currentInput = Math.log(parseFloat(currentInput)).toString();
+                    break;
+                case 'EXP':
+                    currentInput += 'E';
+                    break;
+            }
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        // Scientific functions
+        function scientificFunction(func) {
+            if (!isOn) powerOn();
+            
+            let value = parseFloat(currentInput);
+            
+            switch (func) {
+                case 'x⁻¹':
+                    if (value === 0) {
+                        showError("Math ERROR");
+                        return;
+                    }
+                    currentInput = (1 / value).toString();
+                    break;
+                case 'nCr':
+                    // Combination function - not fully implemented
+                    currentInput += 'C';
+                    break;
+                case 'pol':
+                    // Polar conversion - not fully implemented
+                    currentInput += 'Pol(';
+                    break;
+                case 'x³':
+                    currentInput = Math.pow(value, 3).toString();
+                    break;
+                case 'x²':
+                    currentInput = Math.pow(value, 2).toString();
+                    break;
+                case '^':
+                    operation = '^';
+                    previousInput = currentInput;
+                    shouldResetDisplay = true;
+                    break;
+                case 'hyp':
+                    // Hyperbolic function - not fully implemented
+                    currentInput += 'hyp';
+                    break;
+                case 'sin':
+                    let angle = value;
+                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
+                    currentInput = Math.sin(angle).toString();
+                    break;
+                case 'cos':
+                    angle = value;
+                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
+                    currentInput = Math.cos(angle).toString();
+                    break;
+                case 'tan':
+                    angle = value;
+                    if (angleMode === 'DEG') angle = angle * Math.PI / 180;
+                    // Check for undefined values
+                    if (Math.cos(angle) === 0) {
+                        showError("Math ERROR");
+                        return;
+                    }
+                    currentInput = Math.tan(angle).toString();
+                    break;
+            }
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        // Memory functions
+        function memoryFunction(func) {
+            if (!isOn) powerOn();
+            
+            switch (func) {
+                case 'RCL':
+                    if (shiftMode) {
+                        // STO function
+                        memory = parseFloat(currentInput);
+                    } else {
+                        // RCL function
+                        currentInput = memory.toString();
+                    }
+                    break;
+                case 'M+':
+                    if (shiftMode) {
+                        // M- function
+                        memory -= parseFloat(currentInput);
+                    } else {
+                        // M+ function
+                        memory += parseFloat(currentInput);
+                    }
+                    break;
+            }
+            updateDisplay();
+        }
+
+        // Get answer from previous calculation
+        function getAnswer() {
+            if (!isOn) powerOn();
+            
+            currentInput = lastAnswer.toString();
+            updateDisplay();
+        }
+
+        // Show error message
+        function showError(message) {
+            currentInput = message;
+            updateDisplay();
+            setTimeout(() => {
+                clearAll();
+            }, 2000);
+        }
+
+        // Update the display
         function updateDisplay() {
             let displayValue = currentInput;
-
-            if (Math.abs(parseFloat(displayValue)) > 9999999999) {
-                displayValue = parseFloat(displayValue).toExponential(5);
+            
+            // Handle very large or very small numbers
+            if (!isNaN(parseFloat(displayValue)) {
+                const numValue = parseFloat(displayValue);
+                if (Math.abs(numValue) > 9999999999 || (Math.abs(numValue) < 0.000000001 && numValue !== 0)) {
+                    displayValue = numValue.toExponential(6);
+                }
             }
-
+            
+            // Limit display length
             if (displayValue.length > 12) {
                 if (displayValue.includes('.')) {
                     let parts = displayValue.split('.');
@@ -69,15 +998,124 @@
                     displayValue = parseFloat(displayValue).toExponential(5);
                 }
             }
-
-            display.textContent = displayValue;
-
+            
+            // Animate number change
+            display.style.opacity = '0.7';
+            setTimeout(() => {
+                display.textContent = displayValue;
+                display.style.opacity = '1';
+            }, 50);
+            
+            // Update memory indicator
             if (memory !== 0) {
                 memoryDisplay.textContent = 'M';
+                memoryDisplay.style.animation = 'indicatorPulse 0.5s';
+                setTimeout(() => {
+                    memoryDisplay.style.animation = '';
+                }, 500);
             } else {
                 memoryDisplay.textContent = '';
             }
         }
+
+        // Touch animation function
+        function createRipple(e, button) {
+            button.classList.add('ripple');
+            
+            // Create visual ripple effect
+            const ripple = document.createElement('span');
+            ripple.classList.add('touch-ripple');
+            
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            button.appendChild(ripple);
+            
+            // Haptic feedback simulation with visual cue
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            setTimeout(() => {
+                button.classList.remove('ripple');
+                ripple.remove();
+            }, 600);
+        }
+
+        // Sound effects (using Web Audio API)
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'number':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'operator':
+                    oscillator.frequency.value = 600;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'func':
+                    oscillator.frequency.value = 700;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'equals':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.value = 0.15;
+                    break;
+                case 'clear':
+                    oscillator.frequency.value = 400;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'memory':
+                    oscillator.frequency.value = 900;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'mode':
+                    oscillator.frequency.value = 1200;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'special':
+                    oscillator.frequency.value = 1500;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'power':
+                    oscillator.frequency.value = 500;
+                    gainNode.gain.value = 0.1;
+                    break;
+                default:
+                    oscillator.frequency.value = 500;
+                    gainNode.gain.value = 0.05;
+            }
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
+        // Add touch animation to all buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                createRipple(e, this);
+                
+                // Sound feedback based on button type
+                const soundType = this.getAttribute('data-sound');
+                playSound(soundType);
+            });
+        });
+
+        // Initialize the calculator when page loads
+        window.addEventListener('load', initCalculator);
     </script>
 </body>
 </html>
